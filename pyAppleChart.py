@@ -10,22 +10,27 @@ from datetime import datetime
 import time
 import json
 
+
 # 현재 날짜 가져오기
 current_date = datetime.now().strftime("%Y-%m-%d")
-folder_path = "appleMusic"
+folder_path = "apple"
 filename = f"{folder_path}/apple100_{current_date}.json"
+
 # 웹드라이브 설치
 options = ChromeOptions()
 options.add_argument("--headless")
 browser = webdriver.Chrome(options=options)
 browser.get("https://music.apple.com/kr/playlist/%EC%98%A4%EB%8A%98%EC%9D%98-top-100-%EB%8C%80%ED%95%9C%EB%AF%BC%EA%B5%AD/pl.d3d10c32fbc540b38e266367dc8cb00c")
+
 # 페이지가 완전히 로드될 때까지 대기
 WebDriverWait(browser, 10).until(
     EC.presence_of_element_located((By.CLASS_NAME, "songs-list"))
 )
+
 # 업데이트된 페이지 소스를 변수에 저장
 html_source_updated = browser.page_source
 soup = BeautifulSoup(html_source_updated, 'html.parser')
+
 # 노래 정보를 추출
 song_data = []
 songs_list = soup.find_all('div', class_='songs-list-row', role='row')
@@ -48,8 +53,10 @@ for song in songs_list:
         'album': album,
         'image_url': image_url
     })
+  
 # 추출된 데이터를 JSON 파일로 저장
 with open(filename, 'w', encoding='utf-8') as f:
     json.dump(song_data, f, ensure_ascii=False, indent=4)
+  
 # 브라우저 종료
 browser.quit()
