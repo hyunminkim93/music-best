@@ -42,7 +42,7 @@ jobs:
       
     - name: run file
       run: |
-        python3 pyBillboardChart.py
+        python3 pyFloChart.py
         python3 pyBugsChart.py
         python3 pyMelonChart.py
         python3 pyAppleChart.py
@@ -51,9 +51,9 @@ jobs:
       run : |
         git config --global user.email "rlagusals234@gmail.com"
         git config --global user.name "hyunminkim93" 
-        git add billboard/billboard100_*.json
-        git add bugs/bugs100_*.json
-        git add melon/melon100_*.json
+        git add billboard/flo100_*.json
+        git add bugs/bugsChart100_*.json
+        git add melon/melonChart100_*.json
         git add apple/apple100_*.json
         git commit -m "차트 수집 완료"
 
