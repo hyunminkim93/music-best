@@ -50,7 +50,7 @@ jobs:
     - name: commits
       run : |
         git config --global user.email "rlagusals234@gmail.com"
-        git config --global user.name "hyunminkim93" 
+        git config --global user.name "Hyunminkim93" 
         git add billboard/billboard100_*.json
         git add bugs/bugs100_*.json
         git add melon/melon100_*.json
@@ -62,8 +62,4 @@ jobs:
       with:
         branch: "main"
         github_token: $
-    
-
-
-
-        
+      
