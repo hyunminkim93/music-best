@@ -12,12 +12,13 @@ import json
 
 # 현재 날짜 가져오기
 current_date = datetime.now().strftime("%Y-%m-%d")
-filename = f"chart_apple100_{current_date}.json"
+folder_path = "apple"
+filename = f"{folder_path}/apple100_{current_date}.json"
 
 # 웹드라이브 설치
 options = ChromeOptions()
-service = ChromeService(executable_path=ChromeDriverManager().install())
-browser = webdriver.Chrome(service=service, options=options)
+options.add_argument("--headless")
+browser = webdriver.Chrome(options=options)
 browser.get("https://music.apple.com/kr/playlist/%EC%98%A4%EB%8A%98%EC%9D%98-top-100-%EB%8C%80%ED%95%9C%EB%AF%BC%EA%B5%AD/pl.d3d10c32fbc540b38e266367dc8cb00c")
 
 # 페이지가 완전히 로드될 때까지 대기
@@ -32,7 +33,6 @@ soup = BeautifulSoup(html_source_updated, 'html.parser')
 # 노래 정보를 추출
 song_data = []
 songs_list = soup.find_all('div', class_='songs-list-row', role='row')
-
 for song in songs_list:
     ranking = song.find('div', class_='songs-list-row__rank').text.strip()
     title = song.find('div', class_='songs-list-row__song-name').text.strip()
@@ -45,7 +45,6 @@ for song in songs_list:
         image_url = next((src.split(' ')[0] for src in image_sources.split(',') if '80x80bb.webp' in src), "No image available")
     else:
         image_url = "No image available"
-
     song_data.append({
         'ranking': ranking,
         'title': title,
