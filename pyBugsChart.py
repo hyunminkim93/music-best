@@ -1,48 +1,36 @@
-import requests as req
-from bs4 import BeautifulSoup as bs
-import pandas as pd
+import requests
+from bs4 import BeautifulSoup
+import json
+import datetime
 
-res = req.get("https://music.bugs.co.kr/chart")
+# 현재 날짜를 문자열로 저장
+current_date = datetime.datetime.now().strftime("%Y-%m-%d")
 
-# print(res.text)
-# print(res.status_code)  
-
-soup = bs(res.text, "lxml")
-# print(soup)
+# 웹 페이지로부터 데이터 요청 및 수신
+response = requests.get("https://music.bugs.co.kr/chart")
+soup = BeautifulSoup(response.text, "lxml")
 
 # 데이터 선택
-ranking = soup.select(".ranking > strong")
-title = soup.select(".title > a")
-artist = soup.select(".artist > a:nth-child(1)")
+rankings = [ranking.text.strip() for ranking in soup.select("#CHARTrealtime > table > tbody > tr > td:nth-child(4) > div > strong")]
+titles = [title.text.strip() for title in soup.select("#CHARTrealtime > table > tbody > tr > th > p > a")]
+artists = [artist.text.strip() for artist in soup.select("#CHARTrealtime > table > tbody > tr > td:nth-child(8) > p > a:nth-child(1)")]
+images = [img['src'].strip() for img in soup.select("#CHARTrealtime > table > tbody > tr > td:nth-child(5) > a > img")]
+albums = [album.text.strip() for album in soup.select("#CHARTrealtime > table > tbody > tr > td:nth-child(9) > a")]
 
-print(len(ranking))
-print(len(title))
-print(len(artist))
+# 데이터를 리스트 of 딕셔너리 형태로 구성
+chart_data = []
+for ranking, title, artist, image_url, album in zip(rankings, titles, artists, images, albums):
+    chart_data.append({
+        "rank": ranking,
+        "title": title,
+        "artist": artist,
+        "imageURL": image_url,
+        "album": album
+    })
 
-# 데이터 저장
-# rankingList = []
-# titleList = []
-# artistList = []
+# 파일 이름 설정
+file_name = f"bugs/bugs100_{current_date}.json"
 
-# for i in range(len(ranking)) :
-#      rankingList.append(ranking[i].text)
-#      titleList.append(title[i].text)
-#      artistList.append(artist[i].text)
-
-# print(rankingList)
-# print(titleList)
-# print(artistList)
-
-rankingList = [r.text.strip() for r in ranking]
-titleList = [t.text.strip() for t in title]
-artistList = [a.text.strip() for a in artist]
-
-## 데이터 프레임 생성
-chart_df = pd.DataFrame({
-    'Ranking' : rankingList,
-    'Title' : titleList,
-    'Artist' : artistList
-})
-
-## JSON 파일로 저장 생성
-chart_df.to_json("bugsChart100.json", force_ascii=False, orient="records")
+# JSON 파일로 저장
+with open(file_name, 'w', encoding='utf-8') as file:
+    json.dump(chart_data, file, ensure_ascii=False, indent=4)
